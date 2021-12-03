@@ -1,0 +1,47 @@
+syntax = "proto3";
+import "google/api/annotations.proto";
+
+package api.piano.v1;
+
+option go_package = "helloworld/api/piano/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.piano.v1";
+
+service Piano {
+  rpc CreatePiano (CreatePianoRequest) returns (CreatePianoReply){
+    option (google.api.http) = {
+      post:"/v1.service.create"
+    };
+  }
+  rpc UpdatePiano (UpdatePianoRequest)
+      returns (UpdatePianoReply);
+  rpc DeletePiano (DeletePianoRequest)
+      returns (DeletePianoReply);
+  rpc GetPiano (GetPianoRequest)
+      returns (GetPianoReply);
+  rpc ListPiano (ListPianoRequest)
+      returns (ListPianoReply);
+}
+
+message CreatePianoRequest {
+  int32 id = 1;
+  string name = 2;
+  int64 start_time = 3;
+  int64  end_time = 4;
+}
+message CreatePianoReply {
+  uint32 code = 1;
+  string msg = 2;
+}
+
+message UpdatePianoRequest {}
+message UpdatePianoReply {}
+
+message DeletePianoRequest {}
+message DeletePianoReply {}
+
+message GetPianoRequest {}
+message GetPianoReply {}
+
+message ListPianoRequest {}
+message ListPianoReply {}
