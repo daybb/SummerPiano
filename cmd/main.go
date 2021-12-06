@@ -72,14 +72,30 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := initApp(bc.Server, bc.Data, logger)
+	app, err := initApp(bc.Server, bc.Data, logger)
 	if err != nil {
 		panic(err)
 	}
-	defer cleanup()
-
-	// start and wait for stop signal
+	//router := gin.Default()
+	//v1 := router.Group("/apis/v1/")
+	//{
+	//	v1.POST("/register", common.RegisterUser)
+	//	v1.POST("/login", common.Login)
+	//}
+	//sv1 := router.Group("/apis/v1/auth/")
+	//sv1.Use(common.JWTAuth())
+	//{
+	//	sv1.GET("/time", common.GetDataByTime)
+	//
+	//}
+	//router.Run(":8081")
+	//start and wait for stop signal
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+	//
+
+	// secure v1
+	// 加载自定义的JWTAuth()中间件,在整个sv1的路由组中都生效
+
 }

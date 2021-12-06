@@ -9,7 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"helloworld/internal/conf"
-	"helloworld/internal/data"
+	"helloworld/internal/dao"
 	"helloworld/internal/server"
 	"helloworld/internal/service"
 )
@@ -17,10 +17,18 @@ import (
 // Injectors from wire.go:
 
 // initApp init kratos application.
-func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(confData, logger)
+func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, error) {
+	client, err := dao.NewRedis(confData)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
+	}
+	db, err := dao.NewDb(confData)
+	if err != nil {
+		return nil, err
+	}
+	dataData := dao.New(client, db, logger)
+	if err != nil {
+		return nil, err
 	}
 	//greeterRepo := data.NewGreeterRepo(dataData, logger)
 	//greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
@@ -28,7 +36,5 @@ func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
 	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
 	app := newApp(logger, httpServer, grpcServer)
-	return app, func() {
-		cleanup()
-	}, nil
+	return app, nil
 }

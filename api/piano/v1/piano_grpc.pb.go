@@ -19,6 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PianoClient interface {
 	CreatePiano(ctx context.Context, in *CreatePianoRequest, opts ...grpc.CallOption) (*CreatePianoReply, error)
+	RegisterUser(ctx context.Context, in *CreateRegisterRequest, opts ...grpc.CallOption) (*CommonResponse, error)
+	LoginIn(ctx context.Context, in *CreateLogInRequest, opts ...grpc.CallOption) (*CommonResponse, error)
 	UpdatePiano(ctx context.Context, in *UpdatePianoRequest, opts ...grpc.CallOption) (*UpdatePianoReply, error)
 	DeletePiano(ctx context.Context, in *DeletePianoRequest, opts ...grpc.CallOption) (*DeletePianoReply, error)
 	GetPiano(ctx context.Context, in *GetPianoRequest, opts ...grpc.CallOption) (*GetPianoReply, error)
@@ -36,6 +38,24 @@ func NewPianoClient(cc grpc.ClientConnInterface) PianoClient {
 func (c *pianoClient) CreatePiano(ctx context.Context, in *CreatePianoRequest, opts ...grpc.CallOption) (*CreatePianoReply, error) {
 	out := new(CreatePianoReply)
 	err := c.cc.Invoke(ctx, "/api.piano.v1.Piano/CreatePiano", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pianoClient) RegisterUser(ctx context.Context, in *CreateRegisterRequest, opts ...grpc.CallOption) (*CommonResponse, error) {
+	out := new(CommonResponse)
+	err := c.cc.Invoke(ctx, "/api.piano.v1.Piano/RegisterUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pianoClient) LoginIn(ctx context.Context, in *CreateLogInRequest, opts ...grpc.CallOption) (*CommonResponse, error) {
+	out := new(CommonResponse)
+	err := c.cc.Invoke(ctx, "/api.piano.v1.Piano/LoginIn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +103,8 @@ func (c *pianoClient) ListPiano(ctx context.Context, in *ListPianoRequest, opts 
 // for forward compatibility
 type PianoServer interface {
 	CreatePiano(context.Context, *CreatePianoRequest) (*CreatePianoReply, error)
+	RegisterUser(context.Context, *CreateRegisterRequest) (*CommonResponse, error)
+	LoginIn(context.Context, *CreateLogInRequest) (*CommonResponse, error)
 	UpdatePiano(context.Context, *UpdatePianoRequest) (*UpdatePianoReply, error)
 	DeletePiano(context.Context, *DeletePianoRequest) (*DeletePianoReply, error)
 	GetPiano(context.Context, *GetPianoRequest) (*GetPianoReply, error)
@@ -96,6 +118,12 @@ type UnimplementedPianoServer struct {
 
 func (UnimplementedPianoServer) CreatePiano(context.Context, *CreatePianoRequest) (*CreatePianoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePiano not implemented")
+}
+func (UnimplementedPianoServer) RegisterUser(context.Context, *CreateRegisterRequest) (*CommonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+func (UnimplementedPianoServer) LoginIn(context.Context, *CreateLogInRequest) (*CommonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginIn not implemented")
 }
 func (UnimplementedPianoServer) UpdatePiano(context.Context, *UpdatePianoRequest) (*UpdatePianoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePiano not implemented")
@@ -136,6 +164,42 @@ func _Piano_CreatePiano_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PianoServer).CreatePiano(ctx, req.(*CreatePianoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Piano_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PianoServer).RegisterUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.piano.v1.Piano/RegisterUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PianoServer).RegisterUser(ctx, req.(*CreateRegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Piano_LoginIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLogInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PianoServer).LoginIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.piano.v1.Piano/LoginIn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PianoServer).LoginIn(ctx, req.(*CreateLogInRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -222,6 +286,14 @@ var Piano_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreatePiano",
 			Handler:    _Piano_CreatePiano_Handler,
+		},
+		{
+			MethodName: "RegisterUser",
+			Handler:    _Piano_RegisterUser_Handler,
+		},
+		{
+			MethodName: "LoginIn",
+			Handler:    _Piano_LoginIn_Handler,
 		},
 		{
 			MethodName: "UpdatePiano",

@@ -10,7 +10,20 @@ option java_package = "api.piano.v1";
 service Piano {
   rpc CreatePiano (CreatePianoRequest) returns (CreatePianoReply){
     option (google.api.http) = {
-      post:"/v1.service.create"
+      post:"/v1.service.create",
+      body:"*",
+    };
+  }
+  rpc RegisterUser(CreateRegisterRequest) returns (CommonResponse){
+    option(google.api.http) = {
+      post:"/v1.service.register",
+      body:"*",
+    };
+  }
+  rpc LoginIn(CreateLogInRequest) returns (CommonResponse){
+    option(google.api.http) = {
+      post:"/v1.service.login",
+      body:"*",
     };
   }
   rpc UpdatePiano (UpdatePianoRequest)
@@ -28,12 +41,32 @@ message CreatePianoRequest {
   string name = 2;
   int64 start_time = 3;
   int64  end_time = 4;
+  int64 status = 5;
+  int64 type = 6;
+  string nick_name = 7;
 }
 message CreatePianoReply {
   uint32 code = 1;
   string msg = 2;
 }
 
+message CommonResponse{
+  uint32 code = 1;
+  string msg = 2;
+}
+
+message CreateRegisterRequest{
+  int32 id = 1;
+  string name = 2;
+  string password = 3;
+  string phone = 4;
+  string email = 5;
+}
+
+message CreateLogInRequest{
+  string name = 1;
+  string password = 2;
+}
 message UpdatePianoRequest {}
 message UpdatePianoReply {}
 

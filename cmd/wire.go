@@ -10,12 +10,12 @@ import (
 	"github.com/google/wire"
 	"helloworld/internal/biz"
 	"helloworld/internal/conf"
-	"helloworld/internal/data"
+	"helloworld/internal/dao"
 	"helloworld/internal/server"
 	"helloworld/internal/service"
 )
 
 // initApp init kratos application.
 func initApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+	panic(wire.Build(server.ProviderSet, dao.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }
