@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	pb "helloworld/api/piano/v1"
 	"helloworld/common/jwt"
@@ -97,7 +96,6 @@ func (s *PianoService) RegisterUser(ctx context.Context, req *pb.CreateRegisterR
 
 //todo 生成的token可以存到redis里，之后每次登陆只要取redis就行
 func (s *PianoService) LoginIn(ctx context.Context, req *pb.CreateLogInRequest) (*pb.CommonResponse, error) {
-	fmt.Println(req.Name)
 	if req != nil {
 		// 登陆逻辑校验(查库，验证用户是否存在以及登陆信息是否正确)
 		user, err := s.dao.LoginCheck(&model.LoginReq{

@@ -1,7 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	kgin "github.com/go-kratos/gin"
+	"github.com/go-kratos/kratos/v2/errors"
+	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/transport"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"
@@ -31,7 +39,9 @@ func init() {
 }
 
 func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
+	httpSrv := http.NewServer(http.Address(":9090"))
 	return kratos.New(
+		kratos.Name("gin"),
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Version(Version),
@@ -40,8 +50,19 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
 		kratos.Server(
 			hs,
 			gs,
+			httpSrv,
 		),
 	)
+}
+
+func customMiddleware(handler middleware.Handler) middleware.Handler {
+	return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+		if tr, ok := transport.FromServerContext(ctx); ok {
+			fmt.Println("operation:", tr.Operation())
+		}
+		reply, err = handler(ctx, req)
+		return
+	}
 }
 
 func main() {
@@ -72,30 +93,25 @@ func main() {
 		panic(err)
 	}
 
+	router := gin.Default()
+	// 使用kratos中间件
+	router.Use(kgin.Middlewares(recovery.Recovery(), customMiddleware))
+
+	router.GET("/helloworld/:name", func(ctx *gin.Context) {
+		name := ctx.Param("name")
+		if name == "error" {
+			// 返回kratos error
+			kgin.Error(ctx, errors.Unauthorized("auth_error", "no authentication"))
+		} else {
+			ctx.JSON(200, map[string]string{"welcome": name})
+		}
+	})
 	app, err := initApp(bc.Server, bc.Data, logger)
 	if err != nil {
 		panic(err)
 	}
-	//router := gin.Default()
-	//v1 := router.Group("/apis/v1/")
-	//{
-	//	v1.POST("/register", common.RegisterUser)
-	//	v1.POST("/login", common.Login)
-	//}
-	//sv1 := router.Group("/apis/v1/auth/")
-	//sv1.Use(common.JWTAuth())
-	//{
-	//	sv1.GET("/time", common.GetDataByTime)
-	//
-	//}
-	//router.Run(":8081")
 	//start and wait for stop signal
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
-	//
-
-	// secure v1
-	// 加载自定义的JWTAuth()中间件,在整个sv1的路由组中都生效
-
 }
